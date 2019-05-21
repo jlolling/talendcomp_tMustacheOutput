@@ -1,0 +1,85 @@
+<%@ jet 
+	imports="
+		org.talend.core.model.process.INode 
+		org.talend.core.model.process.ElementParameterParser 
+		org.talend.core.model.metadata.IMetadataTable 
+		org.talend.core.model.metadata.IMetadataColumn 
+		org.talend.core.model.process.IConnection
+		org.talend.core.model.process.IConnectionCategory
+		org.talend.core.model.utils.NodeUtil
+		org.talend.designer.codegen.config.CodeGeneratorArgument
+		java.util.List 
+		java.util.ArrayList 
+    	java.util.Map		
+	" 
+%>
+
+<%
+	CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
+	INode node = (INode)codeGenArgument.getArgument();
+	String cid = node.getUniqueName();
+	@SuppressWarnings("unchecked")	
+	IMetadataTable metadata = null;
+	List<? extends IConnection> inConns = NodeUtil.getIncomingConnections(node, IConnectionCategory.DATA);
+	if (inConns != null && inConns.isEmpty() == false) {
+    	IConnection inConn = inConns.get(0);
+    	metadata = inConn.getMetadataTable();
+	}
+	List<IMetadataColumn> listColumns = new ArrayList<IMetadataColumn>(); // dummy
+	if (metadata != null) {
+		listColumns = metadata.getListColumns();
+	}
+	List<Map<String, String>> configList = (List<Map<String,String>>) ElementParameterParser.getObjectValue(node, "__COLUMN_CONFIG__");
+	String template = ElementParameterParser.getValue(node, "__TEMPLATE__");
+	if (template != null && template.trim().isEmpty() == false) {
+		template = template.trim().replace("\r", "").replace("\n", "\\n\" +\n\"");
+	}
+	boolean strict = "true".equals(ElementParameterParser.getValue(node, "__STRICT__"));
+	String outputStructure = ElementParameterParser.getValue(node, "__OUTPUT_STRUCTURE__");
+	String rootName = ElementParameterParser.getValue(node, "__ROOT_NAME__");
+	String numberLocale = ElementParameterParser.getValue(node, "__NUMBER_LOCALE__");
+	if (numberLocale == null || numberLocale.trim().isEmpty()) {
+		numberLocale = "null";
+	}
+%>
+	de.jlo.talendcomp.mustache.MustacheHelper <%=cid%> = new de.jlo.talendcomp.mustache.MustacheHelper();
+	String template_<%=cid%> = <%=template%>;
+	try {
+		<%=cid%>.compileTemplate(template_<%=cid%>, <%=strict%>);
+	} catch (Throwable t) {
+		Exception ex = new Exception("Compile template: " + template_<%=cid%> + " failed: " + t.getMessage(), t);
+		globalMap.put("<%=cid%>_ERROR_MESSAGE", ex.getMessage());
+		throw ex;
+	}
+	<%=cid%>.setNumberLocale(<%=numberLocale%>);
+<%	if ("ONE_DOCUMENT".equals(outputStructure)) { %>
+	<%=cid%>.setRootName(<%=rootName%>);
+<%	} %>
+<%	for (int i = 0; i < listColumns.size(); i++) {
+		IMetadataColumn mc = listColumns.get(i);
+		String columnName = mc.getLabel();
+		Map<String, String> config = configList.get(i);
+		boolean useGrouping = "true".equals(config.get("IS_GROUPING_USED")); 
+		String pattern = mc.getPattern();
+		if (pattern == null || pattern.trim().isEmpty()) {
+			pattern = "null";
+		}
+		Integer precision = mc.getPrecision();
+		if (precision == null) {
+			precision = 0;
+		}
+		String javaClassName = mc.getTalendType().substring(3);
+		boolean isDate = javaClassName.contains("Date");
+		boolean isNumber = javaClassName.contains("Int") || javaClassName.contains("Long") || javaClassName.contains("Double") || javaClassName.contains("Float") || javaClassName.contains("Short") || javaClassName.contains("Decimal");
+		boolean isNullable = mc.isNullable();
+		if (isDate) { %>
+	<%=cid%>.setDateFormat("<%=columnName%>", <%=pattern%>);
+<%		} else if (isNumber) { %>
+	<%=cid%>.setNumberFormat("<%=columnName%>", <%=precision%>, <%=useGrouping%>);
+<%		} %>
+<%	} %>
+	globalMap.put("<%=cid%>", <%=cid%>);
+	int nb_line_<%=cid%> = 0;
+	
+
+
