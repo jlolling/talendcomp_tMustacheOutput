@@ -29,7 +29,7 @@ public class MustacheHelper {
 	private MustacheFactory mf = null;
 	private Mustache mustache = null;
 	private List<Object> data = new ArrayList<>();
-	private Map<String, String> currentRow;
+	private Map<String, String> currentRow = new HashMap<>();
 	private String nullReplacement = "";
 	private String rootName = null;
 	private Map<String, SimpleDateFormat> mapDateFormat = new HashMap<>();
@@ -92,7 +92,6 @@ public class MustacheHelper {
     }
 
 	public void setNumberLocale(String localeStr) {
-		
 		numberLocal = createLocale(localeStr);
 	}
 	
@@ -150,8 +149,13 @@ public class MustacheHelper {
 	public String render() throws Exception {
 		Object scopes = null;
 		if (rootName != null) {
-			Map<String, List<Object>> mapscope = new HashMap<>();
+			Map<String, Object> mapscope = new HashMap<>();
 			mapscope.put(rootName, data);
+			for (Map.Entry<String, String> entry : currentRow.entrySet()) {
+				if (entry.getKey().equals(rootName) == false) {
+					mapscope.put(entry.getKey(), entry.getValue());
+				}
+			}
 			scopes = mapscope;
 		} else {
 			scopes = currentRow;

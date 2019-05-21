@@ -115,7 +115,7 @@ public class TestMustacheHelper {
 		}
 		row1Struct row1 = new row1Struct();
 		MustacheHelper h = new MustacheHelper();
-		String template = "{{#myList}}{{name}}, {{feature}}! {{number}} {{bool}} {{date}}\n{{/myList}}";
+		String template = "Last feature: {{feature}}\n{{#myList}}{{name}}, {{feature}}! {{number}} {{bool}} {{date}}\n{{/myList}}";
 		h.compileTemplate(template, true);
 		h.setNumberLocale("de_DE");
 		h.setDateFormat("date", "yyyy-MM-dd");
@@ -149,7 +149,7 @@ public class TestMustacheHelper {
 		h.addDataToList();
 		String actual = h.render();
 		System.out.println(actual);
-		String expected = "Name1, Super-Feature1! 12.345,679 false 2019-04-04\nName2, Super-Feature2! 23.456,679 true 2019-04-05\n";
+		String expected = "Last feature: Super-Feature2\nName1, Super-Feature1! 12.345,679 false 2019-04-04\nName2, Super-Feature2! 23.456,679 true 2019-04-05\n";
 		assertEquals("Result doe not match", expected, actual);
 	}
 
