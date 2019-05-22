@@ -28,23 +28,28 @@
     	incomingConnName = inConn.getName();
     	metadata = inConn.getMetadataTable();
 	}
-	List<IMetadataColumn> listColumns = new ArrayList<IMetadataColumn>(); // dummy
+	List<IMetadataColumn> listColumnsIn = new ArrayList<IMetadataColumn>(); // dummy
 	if (metadata != null) {
-		listColumns = metadata.getListColumns();
+		listColumnsIn = metadata.getListColumns();
 	}
 	String outgoingConnName = null;
 	List<? extends IConnection> outConns = NodeUtil.getOutgoingConnections(node, IConnectionCategory.DATA);
 	if (outConns != null && outConns.isEmpty() == false) {
     	IConnection outConn = outConns.get(0);
     	outgoingConnName = outConn.getName();
+		metadata = outConn.getMetadataTable();
+	}
+	List<IMetadataColumn> listColumnsOut = new ArrayList<IMetadataColumn>(); // dummy
+	if (metadata != null) {
+		listColumnsOut = metadata.getListColumns();
 	}
 	String outputType = ElementParameterParser.getValue(node, "__OUTPUT_STRUCTURE__");
 	String outputField = ElementParameterParser.getValue(node, "__OUTPUT_COLUMN__");
 	if (incomingConnName != null) { %>
 	<%=cid%>.newData();
 	try {
-<%		for (int i = 0; i < listColumns.size(); i++) {
-			IMetadataColumn mc = listColumns.get(i);
+<%		for (int i = 0; i < listColumnsIn.size(); i++) {
+			IMetadataColumn mc = listColumnsIn.get(i);
 			String columnName = mc.getLabel();
 			boolean isNullable = mc.isNullable(); %>
 	<%=cid%>.setValue("<%=columnName%>", <%=incomingConnName%>.<%=columnName%>, <%=isNullable%>);
@@ -68,13 +73,19 @@
 		throw ex;
 	}		
 <%		} %>
-<%		for (int i = 0; i < listColumns.size(); i++) {
-			IMetadataColumn mc = listColumns.get(i);
-			String columnName = mc.getLabel(); 
-			if ("ONE_DOCUMENT".equals(outputType) || columnName.equals(outputField) == false) { %>
-	<%=outgoingConnName%>.<%=columnName%> = <%=incomingConnName%>.<%=columnName%>;
-<%			} %>	
-<%		} %>
+<%		for (int i = 0; i < listColumnsIn.size(); i++) {
+			IMetadataColumn mcIn = listColumnsIn.get(i);
+			String columnNameIn = mcIn.getLabel(); 
+			for (IMetadataColumn mcOut : listColumnsOut) {
+				String columnNameOut = mcOut.getLabel();
+				if (columnNameOut.equals(columnNameIn)) {
+					if ("ONE_DOCUMENT".equals(outputType) || columnNameOut.equals(outputField) == false) { %>
+	<%=outgoingConnName%>.<%=columnNameOut%> = <%=incomingConnName%>.<%=columnNameIn%>;
+<%					}
+					break;
+				}
+			}
+		} %>
 <%	} %>
 	nb_line_<%=cid %>++;
 	
