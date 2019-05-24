@@ -81,6 +81,7 @@
 		if ("DOCUMENT_PER_INPUT_ROW".equals(outputType)) { %>
 	try {
 		<%=outgoingConnName%>.<%=outputField%> = <%=cid%>.render();
+		globalMap.put("<%=cid%>_OUTPUT_DOCUMENT", <%=outgoingConnName%>.<%=outputField%>);
 	} catch (Throwable t) {
 		Exception ex = new Exception("Render template per record failed: " + t.getMessage(), t);
 		globalMap.put("<%=cid%>_ERROR_MESSAGE", ex.getMessage());
