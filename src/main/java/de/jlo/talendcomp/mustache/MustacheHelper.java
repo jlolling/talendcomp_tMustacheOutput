@@ -34,6 +34,7 @@ public class MustacheHelper {
 	private String rootName = null;
 	private Map<String, SimpleDateFormat> mapDateFormat = new HashMap<>();
 	private Map<String, NumberFormat> mapNumberFormats = new HashMap<>();
+	private Map<Integer, Mustache> mustacheCache = new HashMap<>();
 	private Locale numberLocal = Locale.getDefault();
 	private final ReflectionObjectHandler failIfDataColumnIsMissingReflectionObjectHelper = new ReflectionObjectHandler() {
         @Override
@@ -65,7 +66,11 @@ public class MustacheHelper {
 			}
 		}
 		try {
-			mustache = mf.compile(new StringReader(template), "template");
+			int hashCode = template.hashCode();
+			mustache = mustacheCache.get(hashCode);
+			if (mustache == null) {
+				mustache = mf.compile(new StringReader(template), "template");
+			}
 		} catch (Exception ex) {
 			throw new Exception("Error while compiling template: " + template + ". Failure: " + ex.getMessage(), ex);
 		}

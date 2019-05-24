@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.jlo.talendcomp</groupId>
 	<artifactId>jlo-talendcomp-mustache</artifactId>
-	<version>1.0</version>
+	<version>1.1</version>
 	<name>Talend Component to use mustache templates</name>
 
 	<dependencies>

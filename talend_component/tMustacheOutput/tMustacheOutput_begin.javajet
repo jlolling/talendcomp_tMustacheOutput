@@ -29,11 +29,6 @@
 	if (metadata != null) {
 		listColumns = metadata.getListColumns();
 	}
-	String template = ElementParameterParser.getValue(node, "__TEMPLATE__");
-	if (template != null && template.trim().isEmpty() == false) {
-		template = template.trim().replace("\r", "").replace("\n", "\\n\" +\n\"");
-	}
-	boolean strict = "true".equals(ElementParameterParser.getValue(node, "__STRICT__"));
 	String outputStructure = ElementParameterParser.getValue(node, "__OUTPUT_STRUCTURE__");
 	String rootName = ElementParameterParser.getValue(node, "__ROOT_NAME__");
 	String numberLocale = ElementParameterParser.getValue(node, "__NUMBER_LOCALE__");
@@ -42,14 +37,6 @@
 	}
 %>
 	de.jlo.talendcomp.mustache.MustacheHelper <%=cid%> = new de.jlo.talendcomp.mustache.MustacheHelper();
-	String template_<%=cid%> = <%=template%>;
-	try {
-		<%=cid%>.compileTemplate(template_<%=cid%>, <%=strict%>);
-	} catch (Throwable t) {
-		Exception ex = new Exception("Compile template: " + template_<%=cid%> + " failed: " + t.getMessage(), t);
-		globalMap.put("<%=cid%>_ERROR_MESSAGE", ex.getMessage());
-		throw ex;
-	}
 	<%=cid%>.setNumberLocale(<%=numberLocale%>);
 <%	if ("ONE_DOCUMENT".equals(outputStructure)) { %>
 	<%=cid%>.setRootName(<%=rootName%>);

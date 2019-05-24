@@ -20,6 +20,11 @@
 	boolean log4jEnabled = "true".equals(org.talend.core.model.process.ElementParameterParser.getValue(node.getProcess(), "__LOG4J_ACTIVATE__")) && 
    							"JOBLET".equals(node.getComponent().getComponentType().toString()) == false;
 	@SuppressWarnings("unchecked")	
+	String template = ElementParameterParser.getValue(node, "__TEMPLATE__");
+	if (template != null && template.trim().isEmpty() == false) {
+		template = template.trim().replace("\r", "").replace("\n", "\\n\" +\n\"");
+	}
+	boolean strict = "true".equals(ElementParameterParser.getValue(node, "__STRICT__"));
 	String incomingConnName = null;
 	IMetadataTable metadata = null;
 	List<? extends IConnection> inConns = NodeUtil.getIncomingConnections(node, IConnectionCategory.DATA);
@@ -46,6 +51,15 @@
 	String outputType = ElementParameterParser.getValue(node, "__OUTPUT_STRUCTURE__");
 	String outputField = ElementParameterParser.getValue(node, "__OUTPUT_COLUMN__");
 	if (incomingConnName != null) { %>
+	String template_<%=cid%> = <%=template%>;
+	try {
+		// compile template if not already done (will be cached internally)
+		<%=cid%>.compileTemplate(template_<%=cid%>, <%=strict%>);
+	} catch (Throwable t) {
+		Exception ex = new Exception("Compile template:\n" + template_<%=cid%> + "\nfailed: " + t.getMessage(), t);
+		globalMap.put("<%=cid%>_ERROR_MESSAGE", ex.getMessage());
+		throw ex;
+	}
 	<%=cid%>.newData();
 	try {
 <%		for (int i = 0; i < listColumnsIn.size(); i++) {
