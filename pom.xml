@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.jlo.talendcomp</groupId>
 	<artifactId>jlo-talendcomp-mustache</artifactId>
-	<version>1.1</version>
+	<version>1.2</version>
 	<name>Talend Component to use mustache templates</name>
 
 	<dependencies>
@@ -55,7 +55,12 @@
 			<plugin>
 				<groupId>de.cimt.talendcomp</groupId>
 				<artifactId>cimt-talendcomp-maven-plugin</artifactId>
-				<version>1.8</version>
+				<version>2.1</version>
+				<configuration>
+					<copyFromSourceBaseDir>${project.basedir}/talend_component</copyFromSourceBaseDir>
+					<componentBaseDir>${project.basedir}/talend_component</componentBaseDir>
+					<studioUserComponentFolder>/Data/Talend/Studio/talend_user_components</studioUserComponentFolder>
+				</configuration>
 				<executions>
 					<execution>
 						<id>tMustacheOutput</id>
