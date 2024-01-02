@@ -53,9 +53,12 @@ public class MustacheHelper {
     };
     
 	public void compileTemplate(String template, boolean strict) throws Exception {
+		if (template == null || template.trim().isEmpty()) {
+			throw new Exception("Mustache template cannot be null or empty");
+		}
 		if (mf == null) {
 			if (strict) {
-				mf = new DefaultMustacheFactory() { 
+				mf = new DefaultMustacheFactory() {
 					@Override 
 					public ObjectHandler getObjectHandler() { 
 						return failIfDataColumnIsMissingReflectionObjectHelper;
@@ -152,6 +155,9 @@ public class MustacheHelper {
 	}
 	
 	public String render() throws Exception {
+		if (mustache == null) {
+			throw new Exception("mustache engine is null. Please take care method compileTemplate is called successfully");
+		}
 		Object scopes = null;
 		if (rootName != null) {
 			Map<String, Object> mapscope = new HashMap<>();
