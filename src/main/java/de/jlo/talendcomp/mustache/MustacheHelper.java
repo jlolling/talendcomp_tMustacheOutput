@@ -175,7 +175,8 @@ public class MustacheHelper {
 		mustache.execute(writer, scopes);
 		data.clear();
 		currentRow.clear();
-		return writer.toString();
+		String document = writer.toString();
+		return document;
 	}
 
 	public String getNullReplacement() {

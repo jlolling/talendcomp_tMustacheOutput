@@ -43,7 +43,7 @@ public class TestMustacheHelper {
 		String actual = h.render();
 		System.out.println(actual);
 		String expected = "NameXYZ, Super-Feature! 12.345,679 true 2019-04-04";
-		assertEquals("Result doe not match", expected, actual);
+		assertEquals("Result does not match", expected, actual);
 	}
 	
 	@Test
@@ -150,7 +150,20 @@ public class TestMustacheHelper {
 		String actual = h.render();
 		System.out.println(actual);
 		String expected = "Last feature: Super-Feature2\nName1, Super-Feature1! 12.345,679 false 2019-04-04\nName2, Super-Feature2! 23.456,679 true 2019-04-05\n";
-		assertEquals("Result doe not match", expected, actual);
+		assertEquals("Result does not match", expected, actual);
+	}
+	
+	@Test
+	public void testEmptyList() throws Exception {
+		MustacheHelper h = new MustacheHelper();
+		h.setNumberLocale("de_DE");
+		h.setRootName("items");
+		String template = "{{#items}}\nName: {{var1}}\n{{/items}}";
+		h.compileTemplate(template, true);
+		String actual = h.render();
+		System.out.println(actual);
+		String expected = "";
+		assertEquals("Result does not match", expected, actual);
 	}
 
 }
